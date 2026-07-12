@@ -115,7 +115,8 @@
     border-radius:4px;background:#FFFDF8;color:var(--ink);
   }
 
-  table.expense-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:6px;}
+  table.expense-table{width:100%;min-width:480px;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:6px;}
+  .table-scroll table.expense-table{border:none;border-radius:0;}
   table.expense-table thead th{text-align:left;padding:9px 12px;border:1px solid #3A4A6B;}
   table.expense-table th.num{text-align:right;}
   table.expense-table tbody tr{border-bottom:1px solid var(--paper-line);}
@@ -196,17 +197,19 @@
     </div>
     <button class="btn" type="submit">Tambah</button>
   </form>
-  <table class="expense-table">
-    <thead>
-      <tr>
-        <th style="width:100px">Tanggal</th>
-        <th>Keterangan</th>
-        <th class="num" style="width:120px">Jumlah</th>
-        <th style="width:40px"></th>
-      </tr>
-    </thead>
-    <tbody id="expenseBody"></tbody>
-  </table>
+  <div class="table-scroll">
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th style="width:100px">Tanggal</th>
+          <th>Keterangan</th>
+          <th class="num" style="width:120px">Jumlah</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="expenseBody"></tbody>
+    </table>
+  </div>
   <div class="empty" id="expenseEmpty" style="display:none;">Belum ada pengeluaran dicatat.</div>
 
   <div class="section-title">Ringkasan</div>
