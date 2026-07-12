@@ -1,0 +1,9 @@
+{
+  "appId": "com.korlas.kaskelas",
+  "appName": "Kas Kelas",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
