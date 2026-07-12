@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kas Kelas</title>
+<style>
+  :root{
+    --font-display:Georgia,'Times New Roman',serif;
+    --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:'Courier New',Courier,monospace;
+    --paper:#FAF6EC;
+    --paper-line:#E7DFC9;
+    --ink:#22304A;
+    --ink-soft:#5B6B85;
+    --green:#2F6F4E;
+    --green-bg:#E4EFE6;
+    --red:#A6402F;
+    --red-bg:#F3E4E0;
+    --gold:#B78A2E;
+    --card:#FFFFFF;
+    --border:#DDD4B8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);}
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 64px;}
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;
+    border-bottom:3px double var(--gold);padding-bottom:16px;margin-bottom:24px;
+  }
+  h1{font-family:var(--font-display);font-weight:600;font-size:26px;margin:0;}
+  .subtitle{color:var(--ink-soft);font-size:13px;margin-top:4px;}
+  .year-control{display:flex;align-items:center;gap:8px;}
+  .year-control select{
+    font-family:var(--font-mono);font-size:13px;padding:7px 10px;
+    border:1px solid var(--border);border-radius:4px;background:#FFFDF8;color:var(--ink);
+  }
+  .btn{
+    font-family:var(--font-body);font-weight:600;font-size:13px;padding:8px 12px;
+    border-radius:4px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;
+  }
+  .btn:hover{opacity:0.88;}
+  .btn.secondary{background:transparent;color:var(--ink-soft);border:1px solid var(--border);font-weight:400;}
+  .btn.small{padding:5px 9px;font-size:12px;}
+  .btn.danger{background:transparent;border:1px solid var(--red);color:var(--red);font-weight:500;}
+
+  .section-title{font-family:var(--font-display);font-size:16px;font-weight:600;margin:32px 0 12px;}
+  .section-title .hint{font-family:var(--font-body);font-size:12px;color:var(--ink-soft);font-weight:400;margin-left:8px;}
+
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;}
+  .sum-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px 16px;}
+  .sum-label{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;}
+  .sum-value{font-family:var(--font-mono);font-size:20px;font-weight:500;}
+  .sum-value.green{color:var(--green);}
+  .sum-value.red{color:var(--red);}
+  .sum-card.saldo{background:var(--ink);border-color:var(--ink);}
+  .sum-card.saldo .sum-label{color:#B9C4D6;}
+  .sum-card.saldo .sum-value{color:#FAF6EC;}
+
+  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:6px;background:var(--card);}
+  table{width:100%;border-collapse:collapse;min-width:760px;}
+  #mainTable{table-layout:fixed;}
+  #mainTable th.name-col, #mainTable td.name-col{width:170px;}
+  #mainTable th:not(.name-col), #mainTable td.chk{width:49px;}
+  thead th{
+    background:var(--ink);color:var(--paper);font-size:11px;text-transform:uppercase;
+    letter-spacing:0.4px;padding:8px 6px;font-weight:500;text-align:center;white-space:nowrap;
+    border:1px solid #3A4A6B;
+  }
+  thead th.name-col{text-align:left;padding-left:12px;position:sticky;left:0;background:var(--ink);z-index:2;}
+  tbody tr.name-row{border-bottom:1px solid var(--paper-line);}
+  tbody tr.name-row:nth-child(even){background:#FBF8F0;}
+  td.name-col{
+    padding:0;font-size:13.5px;position:sticky;left:0;background:inherit;
+    min-width:150px;
+    border:1px solid var(--paper-line);
+  }
+  td.name-col .name-cell{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    padding:8px 12px;height:100%;
+  }
+  tbody tr.name-row:nth-child(odd) td.name-col{background:#FFFFFF;}
+  tbody tr.name-row:nth-child(even) td.name-col{background:#FBF8F0;}
+  td.chk{text-align:center;padding:8px 4px;border:1px solid var(--paper-line);}
+  td.chk input{width:16px;height:16px;cursor:pointer;}
+  .del-name{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:12px;padding:2px;}
+  .del-name:hover{color:var(--red);}
+  tfoot td{padding:8px 6px;text-align:center;font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--border);border-top:2px solid var(--gold);}
+  tfoot td.name-col{text-align:left;padding-left:12px;font-family:var(--font-body);font-weight:600;font-size:12px;position:sticky;left:0;background:var(--paper);}
+  tfoot tr.count-row td{color:var(--ink-soft);border-top:2px solid var(--gold);}
+  tfoot tr.rp-row td{color:var(--green);padding-top:2px;}
+  tfoot tr.rp-row td.name-col{background:var(--paper);}
+
+  .add-name{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end;}
+  .add-name input#newName{
+    flex:1;max-width:280px;font-family:var(--font-body);font-size:13px;padding:8px 10px;
+    border:1px solid var(--border);border-radius:4px;background:#FFFDF8;color:var(--ink);
+  }
+  .nominal-field{display:flex;flex-direction:column;gap:4px;margin-left:auto;}
+  .nominal-field label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;}
+  .nominal-field input{
+    width:140px;font-family:var(--font-mono);font-size:13px;padding:7px 10px;
+    border:1px solid var(--border);border-radius:4px;background:#FFFDF8;color:var(--ink);
+  }
+
+  form.expense-form{
+    background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px;
+    display:grid;grid-template-columns:130px 1fr 140px 90px;gap:10px;align-items:end;margin-bottom:16px;
+  }
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;}
+  .field input{
+    font-family:var(--font-body);font-size:14px;padding:8px 10px;border:1px solid var(--border);
+    border-radius:4px;background:#FFFDF8;color:var(--ink);
+  }
+
+  table.expense-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:6px;}
+  table.expense-table thead th{text-align:left;padding:9px 12px;border:1px solid #3A4A6B;}
+  table.expense-table th.num{text-align:right;}
+  table.expense-table tbody tr{border-bottom:1px solid var(--paper-line);}
+  table.expense-table tbody tr:nth-child(even){background:#FBF8F0;}
+  table.expense-table td{padding:9px 12px;font-size:13.5px;border:1px solid var(--paper-line);}
+  table.expense-table td.num{text-align:right;font-family:var(--font-mono);color:var(--red);}
+  .empty{text-align:center;padding:24px;color:var(--ink-soft);font-size:13px;}
+
+  .summary-box{margin-top:14px;}
+  .copy-row{display:flex;justify-content:flex-end;margin-top:12px;}
+  footer{margin-top:20px;font-size:12px;color:var(--ink-soft);text-align:right;}
+
+  @media (max-width:640px){
+    .summary{grid-template-columns:1fr;}
+    form.expense-form{grid-template-columns:1fr 1fr;}
+  }
+
+  .backup-row{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--card);border:1px solid var(--border);border-radius:6px;
+    padding:10px 14px;margin-bottom:24px;
+  }
+  .backup-hint{font-size:12px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Kas Kelas</h1>
+      <div class="subtitle">Iuran bulanan & pengeluaran kas</div>
+    </div>
+    <div class="year-control">
+      <select id="yearSelect"></select>
+      <button class="btn secondary small" id="addYearBtn">+ Tahun ajaran baru</button>
+    </div>
+  </header>
+
+  <div class="backup-row">
+    <button class="btn secondary small" id="exportBtn">Unduh cadangan data</button>
+    <button class="btn secondary small" id="importBtn">Pulihkan dari cadangan</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+    <span class="backup-hint">Simpan file cadangan secara berkala supaya data aman kalau HP hilang atau ganti perangkat.</span>
+  </div>
+
+  <div class="section-title">Ceklis pembayaran <span class="hint">tahun ajaran <span id="yearLabel"></span></span></div>
+  <div class="add-name">
+    <input type="text" id="newName" placeholder="Nama siswa / orang tua">
+    <button class="btn small" id="addNameBtn">+ Tambah nama</button>
+    <div class="nominal-field">
+      <label for="nominalInput">Nominal kas / bulan</label>
+      <input type="number" id="nominalInput" min="0" step="500">
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table id="mainTable">
+      <thead>
+        <tr id="headRow"></tr>
+      </thead>
+      <tbody id="nameRows"></tbody>
+      <tfoot id="footRows"></tfoot>
+    </table>
+  </div>
+
+  <div class="section-title">Pengeluaran</div>
+  <form class="expense-form" id="expenseForm">
+    <div class="field">
+      <label for="expTanggal">Tanggal</label>
+      <input type="date" id="expTanggal" required>
+    </div>
+    <div class="field">
+      <label for="expKet">Keterangan</label>
+      <input type="text" id="expKet" placeholder="Misal: Beli spidol dan kertas" required>
+    </div>
+    <div class="field">
+      <label for="expJumlah">Jumlah (Rp)</label>
+      <input type="number" id="expJumlah" min="0" step="500" placeholder="0" required>
+    </div>
+    <button class="btn" type="submit">Tambah</button>
+  </form>
+  <table class="expense-table">
+    <thead>
+      <tr>
+        <th style="width:100px">Tanggal</th>
+        <th>Keterangan</th>
+        <th class="num" style="width:120px">Jumlah</th>
+        <th style="width:40px"></th>
+      </tr>
+    </thead>
+    <tbody id="expenseBody"></tbody>
+  </table>
+  <div class="empty" id="expenseEmpty" style="display:none;">Belum ada pengeluaran dicatat.</div>
+
+  <div class="section-title">Ringkasan</div>
+  <div class="summary summary-box">
+    <div class="sum-card">
+      <div class="sum-label">Total pemasukan</div>
+      <div class="sum-value green" id="sumMasuk">Rp 0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-label">Total pengeluaran</div>
+      <div class="sum-value red" id="sumKeluar">Rp 0</div>
+    </div>
+    <div class="sum-card saldo">
+      <div class="sum-label">Saldo kas tersisa</div>
+      <div class="sum-value" id="sumSaldo">Rp 0</div>
+    </div>
+  </div>
+  <div class="copy-row">
+    <button class="btn secondary" id="copyBtn">Salin ringkasan untuk WA</button>
+  </div>
+
+  <footer id="statusLabel">Memuat data...</footer>
+</div>
+
+<script>
+const STORAGE_KEY = 'kas-kelas-data-v1';
+const MONTHS = [
+  {key:'jul', label:'Jul'}, {key:'ags', label:'Ags'}, {key:'sep', label:'Sep'},
+  {key:'okt', label:'Okt'}, {key:'nov', label:'Nov'}, {key:'des', label:'Des'},
+  {key:'jan', label:'Jan'}, {key:'feb', label:'Feb'}, {key:'mar', label:'Mar'},
+  {key:'apr', label:'Apr'}, {key:'mei', label:'Mei'}, {key:'jun', label:'Jun'}
+];
+
+let store = { years: {}, activeYear: null };
+
+function currentAcademicYear(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  return (m >= 6) ? `${y}-${y+1}` : `${y-1}-${y}`;
+}
+
+function blankYearData(){
+  return { siswa: [], nominalBulanan: 50000, pembayaran: {}, pengeluaran: [] };
+}
+
+function fmtRupiah(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtTanggal(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function uid(prefix){ return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    store = raw ? JSON.parse(raw) : { years: {}, activeYear: null };
+  }catch(e){
+    store = { years: {}, activeYear: null };
+  }
+  Object.values(store.years).forEach(yd => {
+    if(yd.nominal && typeof yd.nominal === 'object' && yd.nominalBulanan === undefined){
+      const vals = Object.values(yd.nominal);
+      yd.nominalBulanan = vals.length ? vals[0] : 50000;
+      delete yd.nominal;
+    }
+    if(yd.nominalBulanan === undefined) yd.nominalBulanan = 50000;
+  });
+  const cy = currentAcademicYear();
+  if(!store.years[cy]) store.years[cy] = blankYearData();
+  if(!store.activeYear || !store.years[store.activeYear]) store.activeYear = cy;
+  document.getElementById('statusLabel').textContent = 'Data tersimpan otomatis di HP/perangkat ini.';
+  renderYearSelect();
+  render();
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  }catch(e){
+    document.getElementById('statusLabel').textContent = 'Gagal menyimpan data. Coba lagi.';
+  }
+}
+
+function renderYearSelect(){
+  const sel = document.getElementById('yearSelect');
+  const years = Object.keys(store.years).sort();
+  sel.innerHTML = years.map(y => `<option value="${y}" ${y === store.activeYear ? 'selected' : ''}>${y.replace('-', '/')}</option>`).join('');
+  document.getElementById('yearLabel').textContent = store.activeYear.replace('-', '/');
+}
+
+function yearData(){ return store.years[store.activeYear]; }
+
+function render(){
+  const data = yearData();
+  document.getElementById('yearLabel').textContent = store.activeYear.replace('-', '/');
+
+  const headRow = document.getElementById('headRow');
+  headRow.innerHTML = '<th class="name-col">Nama</th>' + MONTHS.map(m => `<th>${m.label}</th>`).join('');
+
+  const nominalInput = document.getElementById('nominalInput');
+  nominalInput.value = data.nominalBulanan;
+
+  const nameRows = document.getElementById('nameRows');
+  if(data.siswa.length === 0){
+    nameRows.innerHTML = `<tr><td class="name-col" colspan="${MONTHS.length+1}" style="color:var(--ink-soft);">Belum ada nama. Tambahkan lewat kolom di atas tabel.</td></tr>`;
+  } else {
+    nameRows.innerHTML = data.siswa.map(s => `
+      <tr class="name-row">
+        <td class="name-col"><div class="name-cell"><span>${escapeHtml(s.nama)}</span><button class="del-name" data-delname="${s.id}" title="Hapus nama">✕</button></div></td>
+        ${MONTHS.map(m => `<td class="chk"><input type="checkbox" data-siswa="${s.id}" data-bulan="${m.key}" ${data.pembayaran[s.id] && data.pembayaran[s.id][m.key] ? 'checked' : ''}></td>`).join('')}
+      </tr>
+    `).join('');
+  }
+
+  nameRows.querySelectorAll('[data-delname]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      data.siswa = data.siswa.filter(s => s.id !== btn.dataset.delname);
+      delete data.pembayaran[btn.dataset.delname];
+      render();
+      await saveData();
+    });
+  });
+  nameRows.querySelectorAll('[data-siswa]').forEach(chk => {
+    chk.addEventListener('change', async () => {
+      const sid = chk.dataset.siswa, bulan = chk.dataset.bulan;
+      if(!data.pembayaran[sid]) data.pembayaran[sid] = {};
+      data.pembayaran[sid][bulan] = chk.checked;
+      renderFooterAndSummary();
+      await saveData();
+    });
+  });
+
+  renderFooterAndSummary();
+  renderExpenses();
+}
+
+function computeMonthTotals(){
+  const data = yearData();
+  const nominal = data.nominalBulanan || 0;
+  return MONTHS.map(m => {
+    const count = data.siswa.reduce((n, s) => n + ((data.pembayaran[s.id] && data.pembayaran[s.id][m.key]) ? 1 : 0), 0);
+    return { key: m.key, count, rp: count * nominal };
+  });
+}
+
+function renderFooterAndSummary(){
+  const data = yearData();
+  const totals = computeMonthTotals();
+  const foot = document.getElementById('footRows');
+  foot.innerHTML = `
+    <tr class="count-row"><td class="name-col">Jumlah bayar</td>${totals.map(t => `<td>${t.count}/${data.siswa.length}</td>`).join('')}</tr>
+    <tr class="rp-row"><td class="name-col">Total masuk</td>${totals.map(t => `<td>${fmtRupiah(t.rp)}</td>`).join('')}</tr>
+  `;
+
+  const totalMasuk = totals.reduce((a,t) => a + t.rp, 0);
+  const totalKeluar = data.pengeluaran.reduce((a,e) => a + e.jumlah, 0);
+  const saldo = totalMasuk - totalKeluar;
+  document.getElementById('sumMasuk').textContent = fmtRupiah(totalMasuk);
+  document.getElementById('sumKeluar').textContent = fmtRupiah(totalKeluar);
+  document.getElementById('sumSaldo').textContent = fmtRupiah(saldo);
+}
+
+function renderExpenses(){
+  const data = yearData();
+  const body = document.getElementById('expenseBody');
+  const empty = document.getElementById('expenseEmpty');
+  const sorted = [...data.pengeluaran].sort((a,b) => a.tanggal.localeCompare(b.tanggal));
+  if(sorted.length === 0){
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = sorted.map(e => `
+    <tr>
+      <td>${fmtTanggal(e.tanggal)}</td>
+      <td>${escapeHtml(e.keterangan)}</td>
+      <td class="num">${fmtRupiah(e.jumlah)}</td>
+      <td><button class="del-name" data-delexp="${e.id}" title="Hapus">✕</button></td>
+    </tr>
+  `).join('');
+  body.querySelectorAll('[data-delexp]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      data.pengeluaran = data.pengeluaran.filter(e => e.id !== btn.dataset.delexp);
+      render();
+      await saveData();
+    });
+  });
+}
+
+document.getElementById('yearSelect').addEventListener('change', (e) => {
+  store.activeYear = e.target.value;
+  render();
+  saveData();
+});
+
+document.getElementById('addYearBtn').addEventListener('click', async () => {
+  const years = Object.keys(store.years).sort();
+  const lastYear = years[years.length - 1];
+  const startY = parseInt(lastYear.split('-')[0]) + 1;
+  const newKey = `${startY}-${startY+1}`;
+  if(store.years[newKey]){ store.activeYear = newKey; renderYearSelect(); render(); return; }
+  const copyNames = confirm('Salin daftar nama dari tahun ajaran sebelumnya? Klik Batal untuk mulai kosong.');
+  const fresh = blankYearData();
+  if(copyNames){
+    fresh.siswa = store.years[lastYear].siswa.map(s => ({ id: uid('siswa'), nama: s.nama }));
+  }
+  store.years[newKey] = fresh;
+  store.activeYear = newKey;
+  renderYearSelect();
+  render();
+  await saveData();
+});
+
+document.getElementById('addNameBtn').addEventListener('click', async () => {
+  const input = document.getElementById('newName');
+  const nama = input.value.trim();
+  if(!nama) return;
+  yearData().siswa.push({ id: uid('siswa'), nama });
+  input.value = '';
+  render();
+  await saveData();
+});
+document.getElementById('newName').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('addNameBtn').click(); }
+});
+
+document.getElementById('nominalInput').addEventListener('change', async (e) => {
+  const v = parseFloat(e.target.value) || 0;
+  yearData().nominalBulanan = v;
+  renderFooterAndSummary();
+  await saveData();
+});
+
+document.getElementById('expTanggal').valueAsDate = new Date();
+document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const tanggal = document.getElementById('expTanggal').value;
+  const keterangan = document.getElementById('expKet').value.trim();
+  const jumlah = parseFloat(document.getElementById('expJumlah').value);
+  if(!tanggal || !keterangan || !jumlah || jumlah <= 0) return;
+  yearData().pengeluaran.push({ id: uid('exp'), tanggal, keterangan, jumlah });
+  e.target.reset();
+  document.getElementById('expTanggal').valueAsDate = new Date();
+  render();
+  await saveData();
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const data = yearData();
+  const now = new Date();
+  const currentMonthKey = MONTHS[(now.getMonth() + 6) % 12].key;
+  const currentMonthLabel = MONTHS.find(m => m.key === currentMonthKey).label;
+  const totals = computeMonthTotals();
+  const thisMonth = totals.find(t => t.key === currentMonthKey);
+  const totalMasuk = totals.reduce((a,t) => a + t.rp, 0);
+  const totalKeluar = data.pengeluaran.reduce((a,e) => a + e.jumlah, 0);
+  const saldo = totalMasuk - totalKeluar;
+
+  const text = `Kas Kelas - ${currentMonthLabel} ${store.activeYear.replace('-', '/')}
+Sudah bayar bulan ini: ${thisMonth.count}/${data.siswa.length}
+Kas masuk bulan ini: ${fmtRupiah(thisMonth.rp)}
+Total pemasukan (tahun ajaran): ${fmtRupiah(totalMasuk)}
+Total pengeluaran: ${fmtRupiah(totalKeluar)}
+Saldo kas: ${fmtRupiah(saldo)}`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Tersalin!';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  });
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const json = JSON.stringify(store, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `cadangan-kas-kelas-${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try{
+      parsed = JSON.parse(reader.result);
+    }catch(err){
+      alert('File tidak valid. Pastikan ini file cadangan yang benar (.json).');
+      e.target.value = '';
+      return;
+    }
+    if(!parsed || typeof parsed !== 'object' || !parsed.years){
+      alert('File tidak valid. Pastikan ini file cadangan yang benar (.json).');
+      e.target.value = '';
+      return;
+    }
+    const ok = confirm('Memulihkan cadangan akan menimpa semua data yang ada saat ini di aplikasi. Lanjutkan?');
+    if(!ok){ e.target.value = ''; return; }
+    store = parsed;
+    const cy = currentAcademicYear();
+    if(!store.years[cy]) store.years[cy] = blankYearData();
+    if(!store.activeYear || !store.years[store.activeYear]) store.activeYear = cy;
+    saveData();
+    renderYearSelect();
+    render();
+    e.target.value = '';
+    alert('Data berhasil dipulihkan.');
+  };
+  reader.readAsText(file);
+});
+
+loadData();
+window.addEventListener('storage', (e) => {
+  if(e.key === STORAGE_KEY){ loadData(); }
+});
+</script>
+</body>
+</html>
