@@ -84,7 +84,7 @@
   tbody tr.name-row:nth-child(even) td.name-col{background:#FBF8F0;}
   td.chk{text-align:center;padding:8px 4px;border:1px solid var(--paper-line);}
   td.chk input{width:16px;height:16px;cursor:pointer;}
-  .del-name{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:12px;padding:2px;}
+  .del-name{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:12px;padding:0;}
   .del-name:hover{color:var(--red);}
   tfoot td{padding:8px 6px;text-align:center;font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--border);border-top:2px solid var(--gold);}
   tfoot td.name-col{text-align:left;padding-left:12px;font-family:var(--font-body);font-weight:600;font-size:12px;position:sticky;left:0;background:var(--paper);}
@@ -117,14 +117,14 @@
     border-radius:4px;background:#FFFDF8;color:var(--ink);
   }
 
-  table.expense-table{width:100%;min-width:480px;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:6px;}
-  .table-scroll table.expense-table{border:none;border-radius:0;}
-  table.expense-table thead th{text-align:left;padding:9px 12px;border:1px solid #3A4A6B;}
+  table.expense-table{width:100%;table-layout:fixed;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:6px;}
+  table.expense-table thead th{text-align:left;padding:9px 8px;border:1px solid #3A4A6B;font-size:10.5px;}
   table.expense-table th.num{text-align:right;}
   table.expense-table tbody tr{border-bottom:1px solid var(--paper-line);}
   table.expense-table tbody tr:nth-child(even){background:#FBF8F0;}
-  table.expense-table td{padding:9px 12px;font-size:13.5px;border:1px solid var(--paper-line);}
-  table.expense-table td.num{text-align:right;font-family:var(--font-mono);color:var(--red);}
+  table.expense-table td{padding:9px 8px;font-size:12.5px;border:1px solid var(--paper-line);word-break:break-word;overflow-wrap:anywhere;}
+  table.expense-table td.num{text-align:right;font-family:var(--font-mono);color:var(--red);font-size:11.5px;}
+  table.expense-table td.date-col{font-size:11px;color:var(--ink-soft);}
   .empty{text-align:center;padding:24px;color:var(--ink-soft);font-size:13px;}
 
   .summary-box{margin-top:14px;}
@@ -199,19 +199,17 @@
     </div>
     <button class="btn" type="submit">Tambah</button>
   </form>
-  <div class="table-scroll">
-    <table class="expense-table">
-      <thead>
-        <tr>
-          <th style="width:100px">Tanggal</th>
-          <th>Keterangan</th>
-          <th class="num" style="width:120px">Jumlah</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="expenseBody"></tbody>
-    </table>
-  </div>
+  <table class="expense-table">
+    <thead>
+      <tr>
+        <th style="width:64px">Tgl</th>
+        <th>Keterangan</th>
+        <th class="num" style="width:78px">Jumlah</th>
+        <th style="width:22px"></th>
+      </tr>
+    </thead>
+    <tbody id="expenseBody"></tbody>
+  </table>
   <div class="empty" id="expenseEmpty" style="display:none;">Belum ada pengeluaran dicatat.</div>
 
   <div class="section-title">Ringkasan</div>
@@ -261,7 +259,7 @@ function blankYearData(){
 function fmtRupiah(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
 function fmtTanggal(iso){
   const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+  return d.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit', year:'2-digit' });
 }
 function escapeHtml(str){
   const div = document.createElement('div');
@@ -393,7 +391,7 @@ function renderExpenses(){
   empty.style.display = 'none';
   body.innerHTML = sorted.map(e => `
     <tr>
-      <td>${fmtTanggal(e.tanggal)}</td>
+      <td class="date-col">${fmtTanggal(e.tanggal)}</td>
       <td>${escapeHtml(e.keterangan)}</td>
       <td class="num">${fmtRupiah(e.jumlah)}</td>
       <td><button class="del-name" data-delexp="${e.id}" title="Hapus">✕</button></td>
