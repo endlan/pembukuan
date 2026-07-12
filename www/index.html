@@ -107,11 +107,13 @@
   form.expense-form{
     background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px;
     display:grid;grid-template-columns:130px 1fr 140px 90px;gap:10px;align-items:end;margin-bottom:16px;
+    min-width:0;
   }
-  .field{display:flex;flex-direction:column;gap:4px;}
+  form.expense-form .btn{width:100%;min-width:0;}
+  .field{display:flex;flex-direction:column;gap:4px;min-width:0;}
   .field label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;}
   .field input{
-    font-family:var(--font-body);font-size:14px;padding:8px 10px;border:1px solid var(--border);
+    width:100%;min-width:0;font-family:var(--font-body);font-size:14px;padding:8px 10px;border:1px solid var(--border);
     border-radius:4px;background:#FFFDF8;color:var(--ink);
   }
 
