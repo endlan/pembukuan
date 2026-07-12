@@ -343,6 +343,7 @@ function yearData(){ return store.years[store.activeYear]; }
 
 function render(){
   const data = yearData();
+  data.siswa.sort((a,b) => a.nama.localeCompare(b.nama, 'id', { sensitivity: 'base' }));
   document.getElementById('yearLabel').textContent = store.activeYear.replace('-', '/');
 
   const headRow = document.getElementById('headRow');
