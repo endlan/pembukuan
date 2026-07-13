@@ -445,9 +445,15 @@ function render(){
   nameRows.querySelectorAll('[data-siswa]').forEach(chk => {
     chk.addEventListener('change', async () => {
       const sid = chk.dataset.siswa, bulan = chk.dataset.bulan;
-      if(!chk.checked){
-        const s = data.siswa.find(x => x.id === sid);
-        const m = MONTHS.find(x => x.key === bulan);
+      const s = data.siswa.find(x => x.id === sid);
+      const m = MONTHS.find(x => x.key === bulan);
+      if(chk.checked){
+        const ok = await confirmDelete(`Tandai ${s ? s.nama : ''} sudah bayar bulan ${m ? m.label : bulan}?`, 'Ya, Tandai Lunas');
+        if(!ok){
+          chk.checked = false;
+          return;
+        }
+      } else {
         const ok = await confirmDelete(`Batalkan centang pembayaran ${s ? s.nama : ''} bulan ${m ? m.label : bulan}?`, 'Ya, Batalkan');
         if(!ok){
           chk.checked = true;
