@@ -582,8 +582,10 @@ document.getElementById('copyBtn').addEventListener('click', () => {
   const totalKeluar = data.pengeluaran.reduce((a,e) => a + e.jumlah, 0);
   const saldo = totalMasuk - totalKeluar;
 
+  const belumBayar = data.siswa.length - thisMonth.count;
   const text = `${yearData().judul || 'Kas Kelas'} - ${currentMonthLabel} ${store.activeYear.replace('-', '/')}
-Sudah bayar bulan ini: ${thisMonth.count}/${data.siswa.length}
+Sudah bayar bulan ini: ${thisMonth.count}/${data.siswa.length} orang
+Belum bayar bulan ini: ${belumBayar}/${data.siswa.length} orang
 Kas masuk bulan ini: ${fmtRupiah(thisMonth.rp)}
 Total pemasukan (tahun ajaran): ${fmtRupiah(totalMasuk)}
 Total pengeluaran: ${fmtRupiah(totalKeluar)}
