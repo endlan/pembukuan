@@ -185,6 +185,20 @@
     padding:12px 16px;margin-bottom:28px;box-shadow:0 1px 3px rgba(33,47,34,0.06);
   }
   .backup-hint{font-size:12px;color:var(--ink-soft);}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(33,47,34,0.45);
+    display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
+  }
+  .modal-box{
+    background:var(--card);border-radius:12px;padding:22px;max-width:340px;width:100%;
+    box-shadow:0 8px 30px rgba(33,47,34,0.3);
+  }
+  .modal-msg{margin:0 0 18px;font-size:14.5px;color:var(--ink);line-height:1.5;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+  .modal-actions .btn{padding:9px 16px;}
+  .btn.modal-danger{background:var(--red);border-color:var(--red);color:#fff;}
+  .btn.modal-danger:hover{box-shadow:0 4px 10px rgba(165,56,46,0.3);}
 </style>
 </head>
 <body>
@@ -288,6 +302,31 @@ const MONTHS = [
 
 let store = { years: {}, activeYear: null };
 
+function confirmDelete(message, okLabel){
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirmOverlay');
+    const msgEl = document.getElementById('confirmMsg');
+    const okBtn = document.getElementById('confirmOk');
+    const cancelBtn = document.getElementById('confirmCancel');
+    msgEl.textContent = message;
+    okBtn.textContent = okLabel || 'Ya, Hapus';
+    overlay.style.display = 'flex';
+    function cleanup(result){
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlay);
+      resolve(result);
+    }
+    function onOk(){ cleanup(true); }
+    function onCancel(){ cleanup(false); }
+    function onOverlay(e){ if(e.target === overlay) cleanup(false); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlay);
+  });
+}
+
 function currentAcademicYear(){
   const now = new Date();
   const y = now.getFullYear();
@@ -376,6 +415,9 @@ function render(){
 
   nameRows.querySelectorAll('[data-delname]').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const s = data.siswa.find(x => x.id === btn.dataset.delname);
+      const ok = await confirmDelete(`Hapus "${s ? s.nama : ''}" dari daftar? Semua catatan pembayarannya di tahun ajaran ini juga akan terhapus.`);
+      if(!ok) return;
       data.siswa = data.siswa.filter(s => s.id !== btn.dataset.delname);
       delete data.pembayaran[btn.dataset.delname];
       render();
@@ -385,6 +427,15 @@ function render(){
   nameRows.querySelectorAll('[data-siswa]').forEach(chk => {
     chk.addEventListener('change', async () => {
       const sid = chk.dataset.siswa, bulan = chk.dataset.bulan;
+      if(!chk.checked){
+        const s = data.siswa.find(x => x.id === sid);
+        const m = MONTHS.find(x => x.key === bulan);
+        const ok = await confirmDelete(`Batalkan centang pembayaran ${s ? s.nama : ''} bulan ${m ? m.label : bulan}?`, 'Ya, Batalkan');
+        if(!ok){
+          chk.checked = true;
+          return;
+        }
+      }
       if(!data.pembayaran[sid]) data.pembayaran[sid] = {};
       data.pembayaran[sid][bulan] = chk.checked;
       renderFooterAndSummary();
@@ -443,6 +494,9 @@ function renderExpenses(){
   `).join('');
   body.querySelectorAll('[data-delexp]').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const e = data.pengeluaran.find(x => x.id === btn.dataset.delexp);
+      const ok = await confirmDelete(`Hapus catatan pengeluaran "${e ? e.keterangan : ''}" sebesar ${e ? fmtRupiah(e.jumlah) : ''}?`);
+      if(!ok) return;
       data.pengeluaran = data.pengeluaran.filter(e => e.id !== btn.dataset.delexp);
       render();
       await saveData();
@@ -590,5 +644,14 @@ window.addEventListener('storage', (e) => {
   if(e.key === STORAGE_KEY){ loadData(); }
 });
 </script>
+  <div class="modal-overlay" id="confirmOverlay" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-msg" id="confirmMsg">Yakin?</p>
+      <div class="modal-actions">
+        <button class="btn secondary" id="confirmCancel">Batal</button>
+        <button class="btn modal-danger" id="confirmOk">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
