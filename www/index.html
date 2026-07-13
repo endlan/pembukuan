@@ -42,7 +42,10 @@
     display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;
     border-bottom:2px solid var(--brass);padding-bottom:18px;margin-bottom:28px;
   }
-  h1{font-family:var(--font-display);font-weight:400;font-size:29px;margin:0;letter-spacing:0.5px;color:var(--ink);}
+  h1{font-family:var(--font-display);font-weight:400;font-size:29px;margin:0;letter-spacing:0.5px;color:var(--ink);
+    cursor:text;border-radius:6px;padding:2px 6px;margin-left:-6px;outline:none;transition:background .15s;}
+  h1:hover{background:rgba(140,106,46,0.08);}
+  h1:focus{background:var(--card);box-shadow:0 0 0 2px var(--brass);}
   .subtitle{color:var(--ink-soft);font-size:12.5px;margin-top:6px;}
   .year-control{display:flex;align-items:center;gap:8px;}
   .year-control select{
@@ -205,7 +208,7 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Kas Kelas</h1>
+      <h1 id="pageTitle" contenteditable="true" spellcheck="false" title="Ketuk untuk ubah judul">Kas Kelas</h1>
       <div class="subtitle">Iuran bulanan & pengeluaran kas</div>
     </div>
     <div class="year-control">
@@ -336,7 +339,7 @@ function currentAcademicYear(){
 }
 
 function blankYearData(){
-  return { siswa: [], nominalBulanan: 50000, pembayaran: {}, pengeluaran: [] };
+  return { judul: 'Kas Kelas', siswa: [], nominalBulanan: 50000, pembayaran: {}, pengeluaran: [] };
 }
 
 function fmtRupiah(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
@@ -365,6 +368,7 @@ function loadData(){
       delete yd.nominal;
     }
     if(yd.nominalBulanan === undefined) yd.nominalBulanan = 50000;
+    if(!yd.judul) yd.judul = 'Kas Kelas';
   });
   const cy = currentAcademicYear();
   if(!store.years[cy]) store.years[cy] = blankYearData();
@@ -387,6 +391,10 @@ function renderYearSelect(){
   const years = Object.keys(store.years).sort();
   sel.innerHTML = years.map(y => `<option value="${y}" ${y === store.activeYear ? 'selected' : ''}>${y.replace('-', '/')}</option>`).join('');
   document.getElementById('yearLabel').textContent = store.activeYear.replace('-', '/');
+  const titleEl = document.getElementById('pageTitle');
+  if(document.activeElement !== titleEl){
+    titleEl.textContent = yearData().judul || 'Kas Kelas';
+  }
 }
 
 function yearData(){ return store.years[store.activeYear]; }
@@ -574,7 +582,7 @@ document.getElementById('copyBtn').addEventListener('click', () => {
   const totalKeluar = data.pengeluaran.reduce((a,e) => a + e.jumlah, 0);
   const saldo = totalMasuk - totalKeluar;
 
-  const text = `Kas Kelas - ${currentMonthLabel} ${store.activeYear.replace('-', '/')}
+  const text = `${yearData().judul || 'Kas Kelas'} - ${currentMonthLabel} ${store.activeYear.replace('-', '/')}
 Sudah bayar bulan ini: ${thisMonth.count}/${data.siswa.length}
 Kas masuk bulan ini: ${fmtRupiah(thisMonth.rp)}
 Total pemasukan (tahun ajaran): ${fmtRupiah(totalMasuk)}
@@ -643,6 +651,21 @@ document.getElementById('importFile').addEventListener('change', (e) => {
 loadData();
 window.addEventListener('storage', (e) => {
   if(e.key === STORAGE_KEY){ loadData(); }
+});
+
+const pageTitleEl = document.getElementById('pageTitle');
+pageTitleEl.addEventListener('blur', () => {
+  let text = pageTitleEl.textContent.trim();
+  if(!text) text = 'Kas Kelas';
+  pageTitleEl.textContent = text;
+  yearData().judul = text;
+  saveData();
+});
+pageTitleEl.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    pageTitleEl.blur();
+  }
 });
 </script>
   <div class="modal-overlay" id="confirmOverlay" style="display:none;">
