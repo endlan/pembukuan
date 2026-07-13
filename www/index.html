@@ -214,13 +214,6 @@
     </div>
   </header>
 
-  <div class="backup-row">
-    <button class="btn secondary small" id="exportBtn">Unduh cadangan data</button>
-    <button class="btn secondary small" id="importBtn">Pulihkan dari cadangan</button>
-    <input type="file" id="importFile" accept="application/json" style="display:none;">
-    <span class="backup-hint">Simpan file cadangan secara berkala supaya data aman kalau HP hilang atau ganti perangkat.</span>
-  </div>
-
   <div class="section-title">Ceklis pembayaran <span class="hint">tahun ajaran <span id="yearLabel"></span></span></div>
   <div class="add-name">
     <input type="text" id="newName" placeholder="Nama siswa / orang tua">
@@ -286,6 +279,14 @@
   </div>
   <div class="copy-row">
     <button class="btn secondary" id="copyBtn">Salin ringkasan untuk WA</button>
+  </div>
+
+  <div class="section-title">Cadangan data</div>
+  <div class="backup-row">
+    <button class="btn secondary small" id="exportBtn">Unduh cadangan data</button>
+    <button class="btn secondary small" id="importBtn">Pulihkan dari cadangan</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+    <span class="backup-hint">Simpan file cadangan secara berkala supaya data aman kalau HP hilang atau ganti perangkat.</span>
   </div>
 
   <footer id="statusLabel">Memuat data...</footer>
